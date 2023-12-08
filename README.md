@@ -4,7 +4,7 @@ Olá Dev! 😎
 
 Esse projeto faz parte do desafio proposto no [Discord][DiscordBalta] do balta.io.
 
-Dev Team: Claudex e Thiago - Grupo 26.
+Dev Team: Cláudio Gabriel e Thiago Cajaíba - Grupo 26.
 
 ## Descrição do desafio
 
@@ -74,5 +74,20 @@ Resumo:
 - **Data** -> Contexto do banco de dados, refletindo na aplicação a estrutura de campos e tabelas.
 - **Pages** -> Paginas e componentes para visualizar e interagir com os dados.
 - **wwwroot** -> Arquivos estáticos como scripts, css e imagens.
+
+## 01 - Modelagem
+
+Com o Identity já configurado, vamos criar as entidades para representar as localidades do IBGE.
+
+```csharp
+namespace BlazorChallengeIBGE.Models;
+
+public class Locality(int id, string city, string state)
+{
+    public int Id = id;
+    public string City = city;
+    public string State = state;
+}
+```
 
 [DiscordBalta]: https://discord.gg/nnbPDR9d
