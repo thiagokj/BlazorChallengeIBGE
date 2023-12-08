@@ -4,7 +4,7 @@ Olá Dev! 😎
 
 Esse projeto faz parte do desafio proposto no [Discord][DiscordBalta] do balta.io.
 
-Dev Team: Claudex e Thiago.
+Dev Team: Claudex e Thiago - Grupo 26.
 
 ## Descrição do desafio
 
