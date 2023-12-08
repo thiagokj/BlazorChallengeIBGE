@@ -1,0 +1,84 @@
+# Blazor Challenge IBGE
+
+Olá Dev! 😎
+
+Esse projeto faz parte do desafio proposto no [Discord][DiscordBalta] do balta.io.
+
+Dev Team: Claudex e Thiago.
+
+## Descrição do desafio
+
+### Funcionalidades Base
+
+Todos os projetos, independente do nível, precisaram entregar as seguintes funcionalidades:
+Autenticação usando Identity
+CRUD de Localidade (Código, Estado, Cidade -- Id, City, State)
+Pesquisa por cidade
+Pesquisa por estado
+Pesquisa por código (IBGE)
+
+### Classificação das Equipes
+
+As equipes serão classificadas em Júnior, Pleno e Sênior, sendo esta classificação dada pelo integrante da equipe mais experiente.
+
+Por exemplo, se sua equipe tem três pessoas, duas júniores e uma sênior, ela será classificada como sênior.
+
+De acordo com a classificação da sua equipe, você deverá seguir as entregas abaixo:
+
+Júnior
+Todas as funcionalidades base
+.NET 8
+Arquitetura: N/A
+Objetivo: Entregar um App funcionando!
+
+Pleno
+Todas as funcionalidades base
+.NET 8
+Arquitetura: Aberto
+Objetivo: Entregar um App funcionando, com uma boa arquitetura, bem organizado e com código limpo
+
+Sênior
+Todas as funcionalidades base
+.NET 8
+Arquitetura: Clean Arch + MVVM
+Objetivo: Entregar um App funcionando, com uma boa arquitetura, bem organizado e com código limpo
+Funcionalidades Adicionais
+Importação de Dados: Criar uma página para importar os dados deste Excel:
+https://github.com/andrebaltieri/ibge/blob/main/SQL INSERTS - API de localidades IBGE.xlsx
+Neste caso, o App virá sem dados, e os mesmos serão carregados via endpoint, mediante upload do Excel
+
+O foco da aplicação é gerenciar informações dos perfis de acesso.
+
+Obs: No exemplo, a foto de perfil será salva no banco de dados, apenas para demonstração.
+
+Para uma aplicação real, o recomendado é salvar imagens em uma storage na nuvem. No banco, apenas gravar o link para a imagem.
+
+## Novo Projeto
+
+Vamos iniciar criando um projeto blazor com suporte ao **Identity**, que fornece solução de login completa:
+
+```csharp
+dotnet new blazor -o BlazorChallengeIBGE -int Auto -au Individual
+
+//  Parâmetros do comando:
+//  -int Auto -> Adiciona opções de interatividade Server e WebAssembly, gerando 2 projetos na Solution.
+//  -au -> Adiciona a autenticação do usuário via Identity.
+```
+
+**Arquitetura:** Desenvolvimento orientado a dados - Data Driven Design (DDD):
+
+**Estrutura:**
+
+- **BlazorChallengeIBGE**
+  - `Components`
+  - `Data`
+  - `wwwroot`
+
+Resumo:
+
+- **Components** -> Páginas e componentes gerados no projeto. Aqui temos acesso as configurações do Identity.
+- **Data** -> Contexto do banco de dados, refletindo na aplicação a estrutura de campos e tabelas.
+- **Pages** -> Paginas e componentes para visualizar e interagir com os dados.
+- **wwwroot** -> Arquivos estáticos como scripts, css e imagens.
+
+[DiscordBalta]: https://discord.gg/nnbPDR9d
