@@ -47,12 +47,6 @@ Importação de Dados: Criar uma página para importar os dados deste Excel:
 https://github.com/andrebaltieri/ibge/blob/main/SQL INSERTS - API de localidades IBGE.xlsx
 Neste caso, o App virá sem dados, e os mesmos serão carregados via endpoint, mediante upload do Excel
 
-O foco da aplicação é gerenciar informações dos perfis de acesso.
-
-Obs: No exemplo, a foto de perfil será salva no banco de dados, apenas para demonstração.
-
-Para uma aplicação real, o recomendado é salvar imagens em uma storage na nuvem. No banco, apenas gravar o link para a imagem.
-
 ## Novo Projeto
 
 Vamos iniciar criando um projeto blazor com suporte ao **Identity**, que fornece solução de login completa:
