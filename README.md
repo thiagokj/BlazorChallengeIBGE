@@ -11,11 +11,12 @@ Dev Team: Cláudio Gabriel e Thiago Cajaíba - Grupo 26.
 ### Funcionalidades Base
 
 Todos os projetos, independente do nível, precisaram entregar as seguintes funcionalidades:
-Autenticação usando Identity
-CRUD de Localidade (Código, Estado, Cidade -- Id, City, State)
-Pesquisa por cidade
-Pesquisa por estado
-Pesquisa por código (IBGE)
+
+- Autenticação usando Identity
+- CRUD de Localidade (Código, Estado, Cidade -- Id, State, City)
+- Pesquisa por código (IBGE)
+- Pesquisa por estado
+- Pesquisa por cidade
 
 ### Classificação das Equipes
 
@@ -26,20 +27,22 @@ Por exemplo, se sua equipe tem três pessoas, duas júniores e uma sênior, ela 
 De acordo com a classificação da sua equipe, você deverá seguir as entregas abaixo:
 
 Júnior
+
 Todas as funcionalidades base
 .NET 8
 Arquitetura: N/A
 Objetivo: Entregar um App funcionando!
 
 Pleno
+
 Todas as funcionalidades base
 .NET 8
 Arquitetura: Aberto
 Objetivo: Entregar um App funcionando, com uma boa arquitetura, bem organizado e com código limpo
 
 Sênior
-Todas as funcionalidades base
-.NET 8
+
+Todas as funcionalidades base .NET 8
 Arquitetura: Clean Arch + MVVM
 Objetivo: Entregar um App funcionando, com uma boa arquitetura, bem organizado e com código limpo
 Funcionalidades Adicionais
@@ -82,11 +85,11 @@ Com o Identity já configurado, vamos criar as entidades para representar as loc
 ```csharp
 namespace BlazorChallengeIBGE.Models;
 
-public class Locality(int id, string city, string state)
+public class Locality(int id, string state, string city)
 {
     public int Id = id;
-    public string City = city;
     public string State = state;
+    public string City = city;
 }
 ```
 
