@@ -2,7 +2,7 @@
 
 Olá Dev! 😎
 
-Esse projeto faz parte do desafio proposto no [Discord][DiscordBalta] do balta.io.
+Esse projeto faz parte do desafio proposto no [Discord][DiscordBalta] do balta.io. Data final: 20/12/23.
 
 **Dev Team - Grupo 26:**
 [Cláudio Gabriel][ClaudioGabriel],
@@ -97,7 +97,7 @@ Resumo:
      {
        public Guid Id { get; set; } = Guid.NewGuid(); // Identificador Único Global
        public string IbgeCode { get; set; } = null!; // Código do IBGE formado por 7 dígitos
-       public string State { get; set; } = null!; // Sigla do SP representando a Unidade Federativa
+       public string State { get; set; } = null!; // Sigla do Estado, representando a Unidade Federativa
        public string City { get; set; } = null!; // Nome da Cidade / Município
      }
    }
@@ -178,7 +178,7 @@ dotnet ef database update
 
 ## 03 - Componentes da Localidade
 
-Crie um CRUD para permitir a manipulação dos dados pelo usuário. A as paginas devem seguir na estrutura Components -> Localities
+Crie um CRUD para permitir a manipulação dos dados pelo usuário. Siga a estrutura **Components -> Localities**, criando as paginas dentro da pasta.
 
 ### Create.razor
 
@@ -192,7 +192,7 @@ Página para criar uma nova localidade.
 
 <h1>Nova Cidade</h1>
 
-// Formulário usando a tag do blazor EditForm, permitindo o bind(vinculo) com a entidade da Localidade
+// Formulário usando a tag do blazor EditForm, permitindo o bind (vínculo) entre o form e a Localidade
 <EditForm Model="@Model" OnValidSubmit="OnValidSubmitAsync" FormName="localities-create">
 
   // Validações aplicadas com base na definição dos Data Annotations
@@ -214,7 +214,7 @@ Página para criar uma nova localidade.
   <div class="mb-3">
     <label class="form-label">Código IBGE</label>
 
-    // O código do IBGE foi modelado com string, facilitando a validação da quantidade de digitos.
+    // O código do IBGE foi modelado como string, facilitando a validação da quantidade de digitos.
     <InputText @bind-Value="Model.IbgeCode" class="form-control" />
     <ValidationMessage For="@(() => Model.IbgeCode)" />
   </div>
@@ -229,7 +229,7 @@ Página para criar uma nova localidade.
   // Cria um objeto do tipo Localidade chamado Model, permitindo o bind com o formulário
   public Locality Model { get; set; } = new();
 
-  // Método chamado ao clicar no botão Criar, criando uma nova localidade no banco de dados
+  // Método chamado ao clicar no botão Criar, criando uma novo objeto do tipo Localidade no banco de dados
   public async Task OnValidSubmitAsync()
   {
     await Context.Localities.AddAsync(Model);
@@ -246,7 +246,7 @@ Página para criar uma nova localidade.
 Página para exibir os detalhes de uma localidade. Aqui não é necessária validação dos campos.
 
 ```csharp
-@page "/localities/{id:guid}" // é validado que o id na rota deve ser do tipo Guid
+@page "/localities/{id:guid}" // Validação. O Id na rota deve ser do tipo Guid
 @inject ApplicationDbContext Context
 @rendermode InteractiveServer
 
@@ -262,11 +262,12 @@ else
   // Caso exista a localidade, exibe o form com detalhes
   <h1>Detalhes | @Model.City</h1>
 
-  // Especifique o nome de cada form usando FormName
+  // Especifique o nome de cada form usando o FormName
   <EditForm Model="@Model" FormName="localities-details">
 
     <div class="mb-3">
       <label class="form-label">Estado</label>
+
       // readonly restringe alterações, sendo somente leitura
       <InputText @bind-Value="Model.State" class="form-control" readonly />
     </div>
@@ -286,6 +287,7 @@ else
 }
 
 @code {
+
   // Especifica que o id será recuperado na URL da página
   [Parameter]
   public Guid Id { get; set; }
@@ -444,6 +446,7 @@ Página com a rota inicial para exibição de todas as localidades. Filtros e de
 @page "/localities"
 
 @inject ApplicationDbContext Context
+
 // Renderização de streaming, melhorando a UX enquanto aguarda o carregamento dos dados
 @attribute [StreamRendering(true)]
 
@@ -451,7 +454,7 @@ Página com a rota inicial para exibição de todas as localidades. Filtros e de
 <a href="/localities/create" class="btn btn-primary">Nova Cidade</a>
 <br>
 
-// Enquanto não houverem localidades, exibe carregando...
+// Enquanto não houverem localidades, exibe a mensagem carregando...
 @if (!Localities.Any())
 {
   <p class="text-center">
@@ -472,6 +475,7 @@ else
       </tr>
     </thead>
     <tbody>
+
       // Loop do blazor para listar cada item dentro da lista
       @foreach (var locality in Localities)
       {
@@ -514,6 +518,7 @@ else
 }
 
 @code {
+
   // Inicializa uma lista de localidades vazia
   public IEnumerable<Locality> Localities { get; set; } = Enumerable.Empty<Locality>();
 
