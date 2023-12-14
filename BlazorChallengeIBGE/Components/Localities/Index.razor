@@ -1,0 +1,68 @@
+﻿@page "/localities"
+
+@inject ApplicationDbContext Context
+@attribute [StreamRendering(true)]
+
+<h1>Cidades</h1>
+<a href="/localities/create" class="btn btn-primary">Nova Cidade</a>
+<br>
+
+@if (!Localities.Any())
+{
+  <p class="text-center">
+    <em>Carregando as cidades...</em>
+  </p>
+}
+else
+{
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Código IBGE</th>
+        <th>Estado</th>
+        <th>Cidade</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var locality in Localities)
+      {
+        <tr>
+          <td>
+            <a href="/localities/@locality.Id">
+              @locality.IbgeCode
+            </a>
+          </td>
+          <td>
+            @locality.State
+          </td>
+          <td>
+            @locality.City
+          </td>
+          <td>
+            <a href="/localities/edit/@locality.Id" class="btn btn-primary">
+              Editar
+            </a>
+            &nbsp;&nbsp;
+            <a href="/localities/delete/@locality.Id" class="btn btn-danger">
+              Excluir
+            </a>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+@code {
+  public IEnumerable<Locality> Localities { get; set; } = Enumerable.Empty<Locality>();
+
+  protected override async Task OnInitializedAsync()
+  {
+    Localities = await Context
+        .Localities
+        .AsNoTracking()
+        // .Include(x => x.FederativeUnion)
+        .ToListAsync();
+  }
+}

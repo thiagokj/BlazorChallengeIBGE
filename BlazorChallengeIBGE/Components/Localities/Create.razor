@@ -1,0 +1,48 @@
+﻿@page "/localities/create"
+@inject ApplicationDbContext Context
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h1>Nova Cidade</h1>
+<EditForm Model="@Model" OnValidSubmit="OnValidSubmitAsync" FormName="localities-create">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+
+  <div class="mb-3">
+    <label class="form-label">Estado</label>
+    <InputText @bind-Value="Model.State" class="form-control" />
+    <ValidationMessage For="@(() => Model.State)" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Cidade</label>
+    <InputText @bind-Value="Model.City" class="form-control" />
+    <ValidationMessage For="@(() => Model.City)" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Código IBGE</label>
+    <InputText @bind-Value="Model.IbgeCode" class="form-control" />
+    <ValidationMessage For="@(() => Model.IbgeCode)" />
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    Criar
+  </button>
+  <a href="/categories">Cancelar</a>
+</EditForm>
+
+@code {
+  public Locality Model { get; set; } = new();
+
+  protected override void OnInitialized()
+  {
+  }
+
+  public async Task OnValidSubmitAsync()
+  {
+    await Context.Localities.AddAsync(Model);
+    await Context.SaveChangesAsync();
+    Navigation.NavigateTo("localities");
+  }
+}

@@ -1,0 +1,57 @@
+﻿@page "/localities/edit/{id:guid}"
+@inject ApplicationDbContext Context
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@* @attribute [Authorize] *@
+
+<h1>Editar Cidade</h1>
+<EditForm Model="@Model" OnValidSubmit="OnValidSubmitAsync" FormName="localities-edit">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+
+  <div class="mb-3">
+    <label class="form-label">Estado</label>
+    <InputText @bind-Value="Model.State" class="form-control" />
+    <ValidationMessage For="@(() => Model.State)" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Cidade</label>
+    <InputText @bind-Value="Model.City" class="form-control" />
+    <ValidationMessage For="@(() => Model.City)" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Código IBGE</label>
+    <InputText @bind-Value="Model.IbgeCode" class="form-control" />
+    <ValidationMessage For="@(() => Model.IbgeCode)" />
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    Salvar
+  </button>
+  <a href="/localities">Cancelar</a>
+</EditForm>
+
+@code {
+
+  [Parameter]
+  public Guid Id { get; set; }
+
+  public Locality Model { get; set; } = new();
+
+  protected override async void OnInitialized()
+  {
+    Model = await Context
+        .Localities
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == Id) ?? new();
+  }
+
+  public async Task OnValidSubmitAsync()
+  {
+    Context.Localities.Update(Model);
+    await Context.SaveChangesAsync();
+    Navigation.NavigateTo("localities");
+  }
+}

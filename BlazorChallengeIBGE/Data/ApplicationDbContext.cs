@@ -6,17 +6,17 @@ namespace BlazorChallengeIBGE.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
+  protected override void OnModelCreating(ModelBuilder modelBuilder)
+  {
+    base.OnModelCreating(modelBuilder);
 
-        // Configura o nome da tabela
-        modelBuilder.Entity<Locality>().ToTable("Ibge");
+    // Configura o nome da tabela
+    modelBuilder.Entity<Locality>().ToTable("Ibge");
 
-        modelBuilder.Entity<Locality>()
-            .HasIndex(l => new { l.State, l.City })
-            .IsUnique();
-    }
+    modelBuilder.Entity<Locality>()
+        .HasIndex(l => new { l.State, l.City })
+        .IsUnique();
+  }
 
-    public DbSet<Locality> Localities { get; set; } = null!;
+  public DbSet<Locality> Localities { get; set; } = null!;
 }
