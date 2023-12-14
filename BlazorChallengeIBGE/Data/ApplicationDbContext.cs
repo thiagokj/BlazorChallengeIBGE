@@ -10,7 +10,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
   {
     base.OnModelCreating(modelBuilder);
 
-    // Configura o nome da tabela
     modelBuilder.Entity<Locality>().ToTable("Ibge");
 
     modelBuilder.Entity<Locality>()

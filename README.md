@@ -4,7 +4,10 @@ Olá Dev! 😎
 
 Esse projeto faz parte do desafio proposto no [Discord][DiscordBalta] do balta.io.
 
-**Dev Team - Grupo 26:** Cláudio Gabriel, Gabriel Tavares e Thiago Cajaíba.
+**Dev Team - Grupo 26:**
+[Cláudio Gabriel][ClaudioGabriel],
+[Gabriel Tavares][GabrielTavares] e
+[Thiago Cajaíba][ThiagoCajaiba].
 
 ## Descrição do desafio
 
@@ -44,7 +47,8 @@ Objetivo: Entregar um App funcionando, com uma boa arquitetura, bem organizado e
 
 Todas as funcionalidades base .NET 8
 Arquitetura: Clean Arch + MVVM
-Objetivo: Entregar um App funcionando, com uma boa arquitetura, bem organizado e com código limpo
+Objetivo: Entregar um App funcionando, com uma boa arquitetura, bem organizado e com código limpo.
+
 Funcionalidades Adicionais
 Importação de Dados: Criar uma página para importar os dados deste Excel:
 [INSERTS - API de localidades IBGE.xlsx][PlanilhaIBGE]
@@ -52,7 +56,9 @@ Neste caso, o App virá sem dados, e os mesmos serão carregados via endpoint, m
 
 ## Novo Projeto
 
-Vamos iniciar criando um projeto blazor com suporte ao **Identity**, que fornece solução de login completa:
+Nosso foco é a entrega de um projeto nível **Júnior**, bem estruturado e funcional.
+
+Comando para criar o projeto blazor com suporte ao **Identity**, com a solução de login completa:
 
 ```csharp
 dotnet new blazor -o BlazorChallengeIBGE -int Auto -au Individual
@@ -69,58 +75,67 @@ dotnet new blazor -o BlazorChallengeIBGE -int Auto -au Individual
 - **BlazorChallengeIBGE**
   - `Components`
   - `Data`
+  - `Models`
   - `wwwroot`
 
 Resumo:
 
-- **Components** -> Páginas e componentes gerados no projeto. Aqui temos acesso as configurações do Identity.
+- **Components/Pages** -> Páginas e componentes do projeto.
 - **Data** -> Contexto do banco de dados, refletindo na aplicação a estrutura de campos e tabelas.
-- **Pages** -> Paginas e componentes para visualizar e interagir com os dados.
+- **Models** -> As Entidades e Modelos dos objetos são organizados aqui.
+- **Pages** -> Páginas padrão do app com a rota inicial.
 - **wwwroot** -> Arquivos estáticos como scripts, css e imagens.
 
 ## 01 - Modelagem
 
-1. Com o Identity já configurado, vamos criar as entidades para representar as localidades do IBGE.
+1. Com o Identity já configurado, crie as entidades para representar as Localidades do IBGE.
 
    ```csharp
-   namespace BlazorChallengeIBGE.Models;
-
-   public class Locality(int id, string state, string city)
+   namespace BlazorChallengeIBGE.Models
    {
-       public int Id = id;
-       public string State = state;
-       public string City = city;
+     public class Locality
+     {
+       public Guid Id { get; set; } = Guid.NewGuid(); // Identificador Único Global
+       public string IbgeCode { get; set; } = null!; // Código do IBGE formado por 7 dígitos
+       public string State { get; set; } = null!; // Sigla do SP representando a Unidade Federativa
+       public string City { get; set; } = null!; // Nome da Cidade / Município
+     }
    }
    ```
 
-2. Agora, vamos adicionar os **Data Annotations**, especificando os requisitos para cada Propriedade.
+2. Agora, adicione os **Data Annotations**, especificando os requisitos para cada Propriedade.
 
-   ```csharp
-   using System.ComponentModel.DataAnnotations;
+```csharp
+using System.ComponentModel.DataAnnotations;
 
-   namespace BlazorChallengeIBGE.Models;
-
-   public class Locality(int id, string state, string city)
+   namespace BlazorChallengeIBGE.Models
    {
+     public class Locality
+     {
        [Key] // Chave primária
-       public int Id = id;
+       public Guid Id { get; set; } = Guid.NewGuid();
 
-       // Campo obrigatório com tamanho definido para 2 caracteres.
-       // Somente caracteres de A até Z.
+       // Campo obrigatório com tamanho definido para 7 dígitos, conforme IBGE
+       [Required(ErrorMessage = "Informe o código IBGE")]
+       [StringLength(7, MinimumLength = 7, ErrorMessage = "O código deve conter 7 dígitos")]
+       [RegularExpression(@"^\d+$")] // Permite apenas dígitos
+       public string IbgeCode { get; set; } = null!;
+
+       // Campo obrigatório com tamanho definido para 2 caracteres, sendo a sigla da UF
        [Required(ErrorMessage = "Informe a sigla do Estado")]
        [StringLength(2, MinimumLength = 2, ErrorMessage = "A sigla deve conter 2 caracteres")]
-       [RegularExpression(@"^[a-zA-Z]*$")]
+       [RegularExpression(@"^[a-zA-Z]*$")] // Somente letras
        public string State { get; set; } = null!;
 
-       // Campo obrigatório, com valores entre 3 a 100 caracteres.
-       // Somente caracteres A-Z e espaços em branco
+       // Campo obrigatório com tamanho definido entre 3 a 100 caracteres
        [Required(ErrorMessage = "Informe a Cidade")]
        [MinLength(3, ErrorMessage = "A cidade deve ter pelo menos 3 caracteres")]
        [MaxLength(100, ErrorMessage = "A cidade deve ter no máximo 100 caracteres")]
-       [RegularExpression(@"^[a-zA-Z ]*$")]
+       [RegularExpression(@"^[a-zA-ZÀ-ÿ ]*$")] // Somente letras, espaço em branco e acentuação pt-BR
        public string City { get; set; } = null!;
+     }
    }
-   ```
+```
 
 ## 02 - Mapeamento para o banco de dados
 
@@ -140,7 +155,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         // Mantém as configurações padrão do Identity
         base.OnModelCreating(modelBuilder);
 
-        // Configura o nome da tabela
+        // Configura o nome da tabela no banco de dados
         modelBuilder.Entity<Locality>().ToTable("Ibge");
 
         // Configura um índice único para Estado e Cidade, evitando duplicidade
@@ -153,7 +168,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 }
 ```
 
-1. Utilizando o Terminal, crie uma migração para refletir a Entidade no Banco e atualize os dados.
+1. Utilizando o Terminal, crie uma migração para refletir a Entidade no Banco. Em seguida, atualize os dados.
 
 ```csharp
 dotnet ef migrations add "v1 - Schema IBGE"
@@ -161,5 +176,362 @@ dotnet ef migrations add "v1 - Schema IBGE"
 dotnet ef database update
 ```
 
+## 03 - Componentes da Localidade
+
+Crie um CRUD para permitir a manipulação dos dados pelo usuário. A as paginas devem seguir na estrutura Components -> Localities
+
+### Create.razor
+
+Página para criar uma nova localidade.
+
+```csharp
+@page "/localities/create" // Rota para pagina
+@inject ApplicationDbContext Context // Injeta o contexto com o banco
+@inject NavigationManager Navigation // Injeta a navegação entre as rotas
+@rendermode InteractiveServer // Renderiza no lado do servidor
+
+<h1>Nova Cidade</h1>
+
+// Formulário usando a tag do blazor EditForm, permitindo o bind(vinculo) com a entidade da Localidade
+<EditForm Model="@Model" OnValidSubmit="OnValidSubmitAsync" FormName="localities-create">
+
+  // Validações aplicadas com base na definição dos Data Annotations
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+
+  <div class="mb-3">
+    <label class="form-label">Estado</label>
+    <InputText @bind-Value="Model.State" class="form-control" />
+    <ValidationMessage For="@(() => Model.State)" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Cidade</label>
+    <InputText @bind-Value="Model.City" class="form-control" />
+    <ValidationMessage For="@(() => Model.City)" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Código IBGE</label>
+
+    // O código do IBGE foi modelado com string, facilitando a validação da quantidade de digitos.
+    <InputText @bind-Value="Model.IbgeCode" class="form-control" />
+    <ValidationMessage For="@(() => Model.IbgeCode)" />
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    Criar
+  </button>
+  <a href="/categories">Cancelar</a>
+</EditForm>
+
+@code {
+  // Cria um objeto do tipo Localidade chamado Model, permitindo o bind com o formulário
+  public Locality Model { get; set; } = new();
+
+  // Método chamado ao clicar no botão Criar, criando uma nova localidade no banco de dados
+  public async Task OnValidSubmitAsync()
+  {
+    await Context.Localities.AddAsync(Model);
+    await Context.SaveChangesAsync();
+
+    // Após salvar os dados, redireciona a pagina para rota abaixo
+    Navigation.NavigateTo("localities");
+  }
+}
+```
+
+### Details.razor
+
+Página para exibir os detalhes de uma localidade. Aqui não é necessária validação dos campos.
+
+```csharp
+@page "/localities/{id:guid}" // é validado que o id na rota deve ser do tipo Guid
+@inject ApplicationDbContext Context
+@rendermode InteractiveServer
+
+// Se o Id informado não existir, exibe a mensagem abaixo
+@if (Model is null)
+{
+  <p class="text-center">
+    <em>Cidade não encontrada</em>
+  </p>
+}
+else
+{
+  // Caso exista a localidade, exibe o form com detalhes
+  <h1>Detalhes | @Model.City</h1>
+
+  // Especifique o nome de cada form usando FormName
+  <EditForm Model="@Model" FormName="localities-details">
+
+    <div class="mb-3">
+      <label class="form-label">Estado</label>
+      // readonly restringe alterações, sendo somente leitura
+      <InputText @bind-Value="Model.State" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Cidade</label>
+      <InputText @bind-Value="Model.City" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Código IBGE</label>
+      <InputText @bind-Value="Model.IbgeCode" class="form-control" readonly />
+    </div>
+
+    <a href="/localities">Voltar</a>
+  </EditForm>
+}
+
+@code {
+  // Especifica que o id será recuperado na URL da página
+  [Parameter]
+  public Guid Id { get; set; }
+
+  public Locality? Model { get; set; }
+
+  // Ao iniciar a página, recupera a localidade conforme o Id informado
+  protected override async Task OnInitializedAsync()
+  {
+    Model = await Context
+        .Localities
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == Id);
+  }
+}
+```
+
+### Edit.razor
+
+Página para editar os dados de uma localidade. Essa pagina é similar a Create.razor.
+
+```csharp
+@page "/localities/edit/{id:guid}"
+@inject ApplicationDbContext Context
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h1>Editar Cidade</h1>
+<EditForm Model="@Model" OnValidSubmit="OnValidSubmitAsync" FormName="localities-edit">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+
+  <div class="mb-3">
+    <label class="form-label">Estado</label>
+    <InputText @bind-Value="Model.State" class="form-control" />
+    <ValidationMessage For="@(() => Model.State)" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Cidade</label>
+    <InputText @bind-Value="Model.City" class="form-control" />
+    <ValidationMessage For="@(() => Model.City)" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Código IBGE</label>
+    <InputText @bind-Value="Model.IbgeCode" class="form-control" />
+    <ValidationMessage For="@(() => Model.IbgeCode)" />
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    Salvar
+  </button>
+  <a href="/localities">Cancelar</a>
+</EditForm>
+
+@code {
+
+  [Parameter]
+  public Guid Id { get; set; }
+
+  public Locality Model { get; set; } = new();
+
+  // Recupera a localidade conforme o Id informado. Caso não encontre o Id, cria uma nova localidade
+  protected override async void OnInitialized()
+  {
+    Model = await Context
+        .Localities
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == Id) ?? new();
+  }
+
+  // Ao clicar em salvar, atualiza os dados da localidade e redireciona o usuário para rota abaixo
+  public async Task OnValidSubmitAsync()
+  {
+    Context.Localities.Update(Model);
+    await Context.SaveChangesAsync();
+    Navigation.NavigateTo("localities");
+  }
+}
+```
+
+### Delete.razor
+
+Página para deletar uma localidade. A página de exclusão é similar as anteriores.
+
+```csharp
+@page "/localities/delete/{id:guid}"
+@inject ApplicationDbContext Context
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+@if (Model is null)
+{
+  <p class="text-center">
+    <em>Cidade não encontrada</em>
+  </p>
+}
+else
+{
+  <h1>Excluir Cidade</h1>
+  <EditForm Model="@Model" OnValidSubmit="OnValidSubmit" FormName="localities-delete">
+
+    <div class="mb-3">
+      <label class="form-label">Código IBGE</label>
+      <InputText @bind-Value="Model.IbgeCode" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Estado</label>
+      <InputText @bind-Value="Model.State" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Cidade</label>
+      <InputText @bind-Value="Model.City" class="form-control" readonly />
+    </div>
+
+    <button type="submit" class="btn btn-danger">
+      Excluir
+    </button>
+    <a href="/localities">Cancelar</a>
+  </EditForm>
+}
+
+@code {
+
+  [Parameter]
+  public Guid Id { get; set; }
+
+  public Locality? Model { get; set; }
+
+  protected override async Task OnInitializedAsync()
+  {
+    Model = await Context
+    .Localities
+    .AsNoTracking()
+    .FirstOrDefaultAsync(x => x.Id == Id);
+  }
+
+  // Ao clicar em excluir, apaga o registro do banco de dados e navega para a rota abaixo
+  public async Task OnValidSubmit()
+  {
+    Context.Localities.Remove(Model);
+    await Context.SaveChangesAsync();
+    Navigation.NavigateTo("localities");
+  }
+}
+```
+
+### Index.razor
+
+Página com a rota inicial para exibição de todas as localidades. Filtros e demais operações estão concentrados aqui.
+
+```csharp
+@page "/localities"
+
+@inject ApplicationDbContext Context
+// Renderização de streaming, melhorando a UX enquanto aguarda o carregamento dos dados
+@attribute [StreamRendering(true)]
+
+<h1>Cidades</h1>
+<a href="/localities/create" class="btn btn-primary">Nova Cidade</a>
+<br>
+
+// Enquanto não houverem localidades, exibe carregando...
+@if (!Localities.Any())
+{
+  <p class="text-center">
+    <em>Carregando as cidades...</em>
+  </p>
+}
+
+// Quando os dados estiverem disponíveis, exibe em forma de tabela os dados da localidade
+else
+{
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Código IBGE</th>
+        <th>Estado</th>
+        <th>Cidade</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      // Loop do blazor para listar cada item dentro da lista
+      @foreach (var locality in Localities)
+      {
+        <tr>
+          // Cria hiperlink no Código do IBGE, permitindo o acesso a pagina Details usando o Id
+          <td>
+            <a href="/localities/@locality.Id">
+              @locality.IbgeCode
+            </a>
+          </td>
+
+          // Recupera a UF do Estado
+          <td>
+            @locality.State
+          </td>
+
+          // Recupera a Cidade
+          <td>
+            @locality.City
+          </td>
+
+          <td>
+            // Link em forma de botão, permitindo editar a localidade
+            <a href="/localities/edit/@locality.Id" class="btn btn-primary">
+              Editar
+            </a>
+
+            // Espaço em branco
+            &nbsp;&nbsp;
+
+            // Link em forma de botão, permitindo excluir a localidade
+            <a href="/localities/delete/@locality.Id" class="btn btn-danger">
+              Excluir
+            </a>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+@code {
+  // Inicializa uma lista de localidades vazia
+  public IEnumerable<Locality> Localities { get; set; } = Enumerable.Empty<Locality>();
+
+  // Ao carregar a página, preenche a lista com todas as localidades registradas no banco
+  protected override async Task OnInitializedAsync()
+  {
+    Localities = await Context
+        .Localities
+        .AsNoTracking()
+        .ToListAsync();
+  }
+}
+```
+
+<!-- Links -->
+
+[ClaudioGabriel]: https://github.com/Claudio-0x4347
+[GabrielTavares]: https://github.com/gabrielctavares
+[ThiagoCajaiba]: https://github.com/thiagokj/
 [DiscordBalta]: https://discord.gg/nnbPDR9d
 [PlanilhaIBGE]: https://github.com/andrebaltieri/ibge/blob/main/SQL%20INSERTS%20-%20API%20de%20localidades%20IBGE.xlsx
