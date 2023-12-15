@@ -9,6 +9,12 @@ Esse projeto faz parte do desafio proposto no [Discord][DiscordBalta] do balta.i
 [Gabriel Tavares][GabrielTavares] e
 [Thiago Cajaíba][ThiagoCajaiba].
 
+## Definições
+
+Nosso foco é a entrega de um projeto nível **Júnior**, bem estruturado e funcional.
+
+Codificação realizada em inglês, com comentários em português. Definida linguagem Ubiquá para termos específicos.
+
 ## Descrição do desafio
 
 ### Funcionalidades Base
@@ -56,8 +62,6 @@ Neste caso, o App virá sem dados, e os mesmos serão carregados via endpoint, m
 
 ## Novo Projeto
 
-Nosso foco é a entrega de um projeto nível **Júnior**, bem estruturado e funcional.
-
 Comando para criar o projeto blazor com suporte ao **Identity**, com a solução de login completa:
 
 ```csharp
@@ -85,6 +89,13 @@ Resumo:
 - **Models** -> As Entidades e Modelos dos objetos são organizados aqui.
 - **Pages** -> Páginas padrão do app com a rota inicial.
 - **wwwroot** -> Arquivos estáticos como scripts, css e imagens.
+
+### Passos para Desenvolvimento
+
+1. **Modelagem** -> Organização das informações sobre as Localidades como Entidades.
+2. **Mapeamento** -> Mapeamento e migrações das Entidades no banco de dados.
+3. **Componentes / Páginas** -> Telas para interação do usuário com a aplicação.
+4. **Navegação** -> Configuração das rotas para acesso as páginas.
 
 ## 01 - Modelagem
 
@@ -529,6 +540,99 @@ else
         .Localities
         .AsNoTracking()
         .ToListAsync();
+  }
+}
+```
+
+## 04 - Navegação no Menu
+
+Atualize Components -> Layout -> NavMenu.razor com a rota para localidade
+
+```csharp
+@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="">BlazorChallengeIBGE</a>
+  </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+  <nav class="flex-column">
+    <div class="nav-item px-3">
+      <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+      </NavLink>
+    </div>
+
+    // Nova rota definida para acesso
+    <div class="nav-item px-3">
+      <NavLink class="nav-link" href="localities">
+        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> IBGE
+      </NavLink>
+    </div>
+
+    <div class="nav-item px-3">
+      <NavLink class="nav-link" href="auth">
+        <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth Required
+      </NavLink>
+    </div>
+
+    <AuthorizeView>
+      <Authorized>
+        <div class="nav-item px-3">
+          <NavLink class="nav-link" href="Account/Manage">
+            <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
+          </NavLink>
+        </div>
+        <div class="nav-item px-3">
+          <form action="Account/Logout" method="post">
+            <AntiforgeryToken />
+            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+            <button type="submit" class="nav-link">
+              <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+            </button>
+          </form>
+        </div>
+      </Authorized>
+      <NotAuthorized>
+        <div class="nav-item px-3">
+          <NavLink class="nav-link" href="Account/Register">
+            <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
+          </NavLink>
+        </div>
+        <div class="nav-item px-3">
+          <NavLink class="nav-link" href="Account/Login">
+            <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+          </NavLink>
+        </div>
+      </NotAuthorized>
+    </AuthorizeView>
+  </nav>
+</div>
+
+@code {
+  private string? currentUrl;
+
+  protected override void OnInitialized()
+  {
+    currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+    NavigationManager.LocationChanged += OnLocationChanged;
+  }
+
+  private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+  {
+    currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+    StateHasChanged();
+  }
+
+  public void Dispose()
+  {
+    NavigationManager.LocationChanged -= OnLocationChanged;
   }
 }
 ```
