@@ -4,6 +4,10 @@
 @inject ApplicationDbContext Context
 @inject NavigationManager Navigation
 
+
+
+
+
 <h1>Cidades</h1>
 
 @if (!Localities.Any())
@@ -45,6 +49,7 @@ else
                 @onclick="@(() => Edit(context))">
           Editar
         </button>
+
         <button class="btn btn-danger button-spacing"
                 @onclick="@(() => Delete(context))">
           Excluir
@@ -61,7 +66,7 @@ else
       {
         var capturedIndex = pageIndex;
         <button @onclick="@(() => GoToPageAsync(capturedIndex))"
-                class="@PageButtonClass(capturedIndex)"
+                class="@PageButtonClass(capturedIndex) page-button"
                 aria-current="@AriaCurrentValue(capturedIndex)"
                 aria-label="Go to page @(pageIndex + 1)">
           @(pageIndex + 1)
