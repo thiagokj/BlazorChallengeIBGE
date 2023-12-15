@@ -1,7 +1,7 @@
 ﻿@page "/localities/edit/{id:guid}"
+@rendermode InteractiveServer
 @inject ApplicationDbContext Context
 @inject NavigationManager Navigation
-@rendermode InteractiveServer
 @* @attribute [Authorize] *@
 
 <h1>Editar Cidade</h1>
@@ -52,6 +52,8 @@
   {
     Context.Localities.Update(Model);
     await Context.SaveChangesAsync();
+    // Limpa o rastreamento do EF após salvar
+    Context.ChangeTracker.Clear();
     Navigation.NavigateTo("localities");
   }
 }

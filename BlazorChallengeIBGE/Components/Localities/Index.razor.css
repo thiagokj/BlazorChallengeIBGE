@@ -1,0 +1,58 @@
+﻿  /* IBGE Challenge - Localities*/
+
+  .items-per-page {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .table-grid tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  .button-spacing {
+    margin: 2px;
+  }
+
+  .page-size-chooser {
+    display: flex;
+    align-items: center;
+  }
+
+  span {
+    margin-right: 5px;
+  }
+
+  .custom-select-sm {
+    width: 80px;
+  }
+
+  /* Style the custom page links*/
+  .page-buttons {
+    margin: 1rem 0;
+    align-items: center;
+  }
+
+    .page-buttons button {
+      background: #d6d7d8;
+      color: black;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.4rem;
+      transition: transform 0.3s ease-out;
+      margin: 0.25rem;
+    }
+
+      .page-buttons button:active {
+        background: #a7c1ff !important;
+        color: white;
+        transform: scale(0.95) translateY(-0.15rem);
+        transition-duration: 0.05s;
+      }
+
+      .page-buttons button:hover:not(.current) {
+        background: #c0c9dc;
+      }
+
+      .page-buttons button.current {
+        background: #3771f4;
+        color: white;
+      }
