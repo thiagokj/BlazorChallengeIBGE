@@ -649,6 +649,189 @@ Para facilitar a análise dos dados pelo usuário, será utilizado o componente 
 dotnet add package Microsoft.AspNetCore.Components.QuickGrid
 ```
 
+Realize as alterações na pagina Components -> Localities -> Index.razor
+
+```csharp
+@page "/localities"
+@using Microsoft.AspNetCore.Components.QuickGrid // Importando o Namespace Quickgrid
+@rendermode InteractiveServer
+@inject ApplicationDbContext Context
+@inject NavigationManager Navigation
+
+<h1>Cidades</h1>
+
+@if (!Localities.Any())
+{
+  <p class="text-center">
+    <em>Carregando as cidades...</em>
+  </p>
+}
+else
+{
+  // Elementos antes do grid, permitindo criar uma nova localidade e selecionar a quantidade de itens por página
+  <div class="items-per-page">
+    <a href="/localities/create" class="btn btn-primary">Nova Cidade</a>
+
+    <div class="page-size-chooser">
+      <span>Itens por página:</span>
+      <select class="form-select custom-select-sm" @bind="@pagination.ItemsPerPage">
+        <option>1</option>
+        <option>10</option>
+      </select>
+    </div>
+  </div>
+
+
+  <div class="grid">
+    // Componente Quickgrid, atribuindo a lista de Localidades como tipo Queryable
+    // Também é habilitada a paginação com a Tag Pagination
+    <QuickGrid Items="@Localities.AsQueryable()" Pagination="@pagination" class="table table-grid">
+
+      // Primeira coluna do grid. É criado um link para pagina detalhes
+      <TemplateColumn Title="#" SortBy="@SortByIbgeCode">
+        <a class="grid-link" @onclick="@(() => Details(context))">
+          🔗
+        </a>
+      </TemplateColumn>
+
+
+      // Coluna seguinte, exibindo o código do Ibge.
+      // Ao clicar no ícone ao lado do nome da coluna, é possível filtrar.
+      <PropertyColumn Property="@(item => item.IbgeCode)" Title="IBGE" Sortable="true" Align="Align.Left">
+        <ColumnOptions>
+          <div class="search-box">
+            <input type="search" @oninput="OnInputIbgeCodeAsync" placeholder="Código Ibge..." />
+          </div>
+        </ColumnOptions>
+      </PropertyColumn>
+
+      // Coluna com a UF. Mesmas funcionalidades da coluna anterior
+      <PropertyColumn Property="@(item => item.State)" Title="Estado" Sortable="true" Align="Align.Left">
+        <ColumnOptions>
+          <div class="search-box">
+            <input type="search" @oninput="OnInputStateAsync" placeholder="Sigla UF..." />
+          </div>
+        </ColumnOptions>
+      </PropertyColumn>
+
+      // Coluna com a Cidade. Mesmas funcionalidades da coluna anterior
+      <PropertyColumn Property="@(item => item.City)" Title="Cidade" Sortable="true" Align="Align.Left">
+        <ColumnOptions>
+          <div class="search-box">
+            <input type="search" @oninput="OnInputCityAsync" placeholder="Cidade..." />
+          </div>
+        </ColumnOptions>
+      </PropertyColumn>
+
+      // Ultima coluna, exibindo botões de edição e exclusão.
+      <TemplateColumn Title="Ações">
+        <button class="btn btn-primary button-spacing" @onclick="@(() => Edit(context))">
+          Editar
+        </button>
+
+        <button class="btn btn-danger button-spacing" @onclick="@(() => Delete(context))">
+          Excluir
+        </button>
+      </TemplateColumn>
+    </QuickGrid>
+  </div>
+
+  // Abaixo do grid, fica a paginação, exibindo um botão para cada página
+  <div class="page-buttons">
+    Página:
+    @if (pagination.TotalItemCount.HasValue)
+    {
+      for (var pageIndex = 0; pageIndex <= pagination.LastPageIndex; pageIndex++)
+      {
+        var capturedIndex = pageIndex;
+        <button @onclick="@(() => GoToPageAsync(capturedIndex))"
+          class="@PageButtonClass(capturedIndex) page-button"
+          aria-current="@AriaCurrentValue(capturedIndex)"
+          aria-label="Go to page @(pageIndex + 1)">
+          @(pageIndex + 1)
+        </button>
+      }
+    }
+  </div>
+}
+
+@code {
+  // Lista para retornar todas as localidades
+  public IEnumerable<Locality> Localities { get; set; } = Enumerable.Empty<Locality>();
+
+  // Componente para ordenar uma coluna do tipo TemplateColumn
+  GridSort<Locality> SortByIbgeCode = GridSort<Locality>
+  .ByAscending(l => l.IbgeCode)
+  .ThenAscending(l => l.IbgeCode);
+
+  // Métodos com ações sobre cada localidade
+  public void Details(Locality l) => Navigation.NavigateTo($"/localities/{l.Id}");
+
+  public void Edit(Locality l) => Navigation.NavigateTo($"/localities/edit/{l.Id}");
+
+  public void Delete(Locality l) => Navigation.NavigateTo($"/localities/delete/{l.Id}");
+
+  // Cria um novo objeto para paginação, informado o valor padrão de cada página
+  PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+
+  // Métodos para navegar usando a paginação
+  private async Task GoToPageAsync(int pageIndex)
+  => await pagination.SetCurrentPageIndexAsync(pageIndex);
+
+  private string? PageButtonClass(int pageIndex)
+  => pagination.CurrentPageIndex == pageIndex ? "current" : null;
+
+  private string? AriaCurrentValue(int pageIndex)
+  => pagination.CurrentPageIndex == pageIndex ? "page" : null;
+
+  // Ao carregar a pagina, inicializa a lista de localidades e retorna a quantidade de itens para paginação
+  protected override async Task OnInitializedAsync()
+  {
+    Localities = await Context
+    .Localities
+    .AsNoTracking()
+    .ToListAsync();
+
+    pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
+  }
+
+  // Métodos para filtrar cada coluna da tabela Localidade
+  public string ibgeCodeFilter = string.Empty;
+  private async Task OnInputIbgeCodeAsync(ChangeEventArgs e)
+  {
+    ibgeCodeFilter = e.Value.ToString();
+    Localities = await Context.Localities.Where(l =>
+    l.IbgeCode
+    .ToLower()
+    .Contains(ibgeCodeFilter.ToLower()))
+    .ToListAsync();
+  }
+
+  public string stateFilter = string.Empty;
+  private async Task OnInputStateAsync(ChangeEventArgs e)
+  {
+    stateFilter = e.Value.ToString();
+    Localities = await Context.Localities.Where(l =>
+    l.State
+    .ToLower()
+    .Contains(stateFilter.ToLower()))
+    .ToListAsync();
+  }
+
+  public string cityFilter = string.Empty;
+  private async Task OnInputCityAsync(ChangeEventArgs e)
+  {
+    cityFilter = e.Value.ToString();
+    Localities = await Context.Localities.Where(l =>
+    l.City
+    .ToLower()
+    .Contains(cityFilter.ToLower()))
+    .ToListAsync();
+  }
+
+}
+```
+
 <!-- Links -->
 
 [ClaudioGabriel]: https://github.com/Claudio-0x4347
