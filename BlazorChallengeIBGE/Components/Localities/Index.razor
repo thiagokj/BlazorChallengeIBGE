@@ -36,13 +36,31 @@ else
                class="table table-grid">
 
       <PropertyColumn Property="@(item => item.IbgeCode)"
-                      Title="IBGE" Sortable="true" Align="Align.Left" />
+                      Title="IBGE" Sortable="true" Align="Align.Left">
+        <ColumnOptions>
+          <div class="search-box">
+            <input type="search" @oninput="OnInputIbgeCodeAsync" placeholder="Código Ibge..." />
+          </div>
+        </ColumnOptions>
+      </PropertyColumn>
 
       <PropertyColumn Property="@(item => item.State)"
-                      Title="Estado" Sortable="true" Align="Align.Left" />
+                      Title="Estado" Sortable="true" Align="Align.Left">
+        <ColumnOptions>
+          <div class="search-box">
+            <input type="search" @oninput="OnInputStateAsync" placeholder="Sigla UF..." />
+          </div>
+        </ColumnOptions>
+      </PropertyColumn>
 
       <PropertyColumn Property="@(item => item.City)"
-                      Title="Cidade" Sortable="true" Align="Align.Left" />
+                      Title="Cidade" Sortable="true" Align="Align.Left">
+        <ColumnOptions>
+          <div class="search-box">
+            <input type="search" @oninput="OnInputCityAsync" placeholder="Cidade..." />
+          </div>
+        </ColumnOptions>
+      </PropertyColumn>
 
       <TemplateColumn Title="Ações">
         <button class="btn btn-primary button-spacing"
@@ -104,4 +122,38 @@ else
 
     pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
   }
+
+  public string ibgeCodeFilter = string.Empty;
+  private async Task OnInputIbgeCodeAsync(ChangeEventArgs e)
+  {
+    ibgeCodeFilter = e.Value.ToString();
+    Localities = await Context.Localities.Where(l =>
+        l.IbgeCode
+        .ToLower()
+        .Contains(ibgeCodeFilter.ToLower()))
+        .ToListAsync();
+  }
+
+  public string stateFilter = string.Empty;
+  private async Task OnInputStateAsync(ChangeEventArgs e)
+  {
+    stateFilter = e.Value.ToString();
+    Localities = await Context.Localities.Where(l =>
+        l.State
+        .ToLower()
+        .Contains(stateFilter.ToLower()))
+        .ToListAsync();
+  }
+
+  public string cityFilter = string.Empty;
+  private async Task OnInputCityAsync(ChangeEventArgs e)
+  {
+    cityFilter = e.Value.ToString();
+    Localities = await Context.Localities.Where(l =>
+        l.City
+        .ToLower()
+        .Contains(cityFilter.ToLower()))
+        .ToListAsync();
+  }
+
 }

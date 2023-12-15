@@ -8,6 +8,10 @@
     padding-left: 0;
 }
 
+::deep .quickgrid[theme=default] .col-options-button {
+    margin-top: 3px;
+}
+
 .items-per-page {
     display: flex;
     justify-content: space-between;
