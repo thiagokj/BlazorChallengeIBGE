@@ -96,6 +96,7 @@ Resumo:
 2. **Mapeamento** -> Mapeamento e migrações das Entidades no banco de dados.
 3. **Componentes / Páginas** -> Telas para interação do usuário com a aplicação.
 4. **Navegação** -> Configuração das rotas para acesso as páginas.
+5. **Filtros e Paginação** -> Utilização de componentes como o [Quickgrid][Quickgrid] para organizar os dados.
 
 ## 01 - Modelagem
 
@@ -376,6 +377,9 @@ Página para editar os dados de uma localidade. Essa pagina é similar a Create.
   {
     Context.Localities.Update(Model);
     await Context.SaveChangesAsync();
+
+    // Limpa o rastreamento do EF após salvar.
+    Context.ChangeTracker.Clear();
     Navigation.NavigateTo("localities");
   }
 }
@@ -637,6 +641,14 @@ Atualize Components -> Layout -> NavMenu.razor com a rota para localidade
 }
 ```
 
+## 05 - Paginação e Filtros
+
+Para facilitar a análise dos dados pelo usuário, será utilizado o componente Quickgrid. Instalação:
+
+```csharp
+dotnet add package Microsoft.AspNetCore.Components.QuickGrid
+```
+
 <!-- Links -->
 
 [ClaudioGabriel]: https://github.com/Claudio-0x4347
@@ -644,3 +656,4 @@ Atualize Components -> Layout -> NavMenu.razor com a rota para localidade
 [ThiagoCajaiba]: https://github.com/thiagokj/
 [DiscordBalta]: https://discord.gg/nnbPDR9d
 [PlanilhaIBGE]: https://github.com/andrebaltieri/ibge/blob/main/SQL%20INSERTS%20-%20API%20de%20localidades%20IBGE.xlsx
+[Quickgrid]: https://aspnet.github.io/quickgridsamples/
