@@ -4,18 +4,18 @@
 @inject ApplicationDbContext Context
 @inject NavigationManager Navigation
 
-<h1>Cidades</h1>
+<h1>Localidades</h1>
 
 @if (!Localities.Any())
 {
   <p class="text-center">
-    <em>Carregando as cidades...</em>
+    <em>Carregando...</em>
   </p>
 }
 else
 {
   <div class="items-per-page">
-    <a href="/localities/create" class="btn btn-primary">Nova Cidade</a>
+    <a href="/localities/create" class="btn btn-primary">Nova Localidade</a>
 
     <div class="page-size-chooser">
       <span>Itens por página:</span>
@@ -79,7 +79,7 @@ else
       {
         var capturedIndex = pageIndex;
         <button @onclick="@(() => GoToPageAsync(capturedIndex))" class="@PageButtonClass(capturedIndex) page-button"
-          aria-current="@AriaCurrentValue(capturedIndex)" aria-label="Go to page @(pageIndex + 1)">
+                aria-current="@AriaCurrentValue(capturedIndex)" aria-label="Go to page @(pageIndex + 1)">
           @(pageIndex + 1)
         </button>
       }

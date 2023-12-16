@@ -4,7 +4,7 @@
 @inject NavigationManager Navigation
 @* @attribute [Authorize] *@
 
-<h1>Editar Cidade</h1>
+<h1>Editar Localidade</h1>
 <EditForm Model="@Model" OnValidSubmit="OnValidSubmitAsync" FormName="localities-edit">
   <DataAnnotationsValidator />
   <ValidationSummary />
@@ -52,6 +52,7 @@
   {
     Context.Localities.Update(Model);
     await Context.SaveChangesAsync();
+
     // Limpa o rastreamento do EF após salvar
     Context.ChangeTracker.Clear();
     Navigation.NavigateTo("localities");
