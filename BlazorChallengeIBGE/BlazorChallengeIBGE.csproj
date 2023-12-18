@@ -8,10 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Components\Localities\Index - Copia.bkp" />
     <None Remove="Components\Localities\Index.razor.css" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Components\Localities\Index - Copia.bkp" />
     <Content Include="Components\Localities\Index.razor.css" />
   </ItemGroup>
 

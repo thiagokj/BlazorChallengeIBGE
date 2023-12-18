@@ -43,9 +43,9 @@
   protected override async void OnInitialized()
   {
     Model = await Context
-        .Localities
-        .AsNoTracking()
-        .FirstOrDefaultAsync(x => x.Id == Id) ?? new();
+    .Localities
+    .AsNoTracking()
+    .FirstOrDefaultAsync(x => x.Id == Id) ?? new();
   }
 
   public async Task OnValidSubmitAsync()
@@ -53,7 +53,6 @@
     Context.Localities.Update(Model);
     await Context.SaveChangesAsync();
 
-    // Limpa o rastreamento do EF após salvar
     Context.ChangeTracker.Clear();
     Navigation.NavigateTo("localities");
   }
