@@ -1,8 +1,9 @@
 ﻿@page "/localities"
 @using Microsoft.AspNetCore.Components.QuickGrid
-@rendermode InteractiveServer
 @inject ApplicationDbContext Context
 @inject NavigationManager Navigation
+@attribute [Authorize]
+@rendermode InteractiveServer
 
 <h1>Localidades</h1>
 

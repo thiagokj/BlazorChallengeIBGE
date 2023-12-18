@@ -1,8 +1,8 @@
 ﻿@page "/localities/edit/{id:guid}"
-@rendermode InteractiveServer
 @inject ApplicationDbContext Context
 @inject NavigationManager Navigation
-@* @attribute [Authorize] *@
+@attribute [Authorize]
+@rendermode InteractiveServer
 
 <h1>Editar Localidade</h1>
 <EditForm Model="@Model" OnValidSubmit="OnValidSubmitAsync" FormName="localities-edit">

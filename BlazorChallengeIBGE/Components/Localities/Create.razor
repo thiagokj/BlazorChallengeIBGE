@@ -1,6 +1,7 @@
 ﻿@page "/localities/create"
 @inject ApplicationDbContext Context
 @inject NavigationManager Navigation
+@attribute [Authorize]
 @rendermode InteractiveServer
 
 <h1>Nova Localidade</h1>
@@ -34,15 +35,12 @@
 
 @code {
   public Locality Model { get; set; } = new();
-
-  protected override void OnInitialized()
-  {
-  }
-
   public async Task OnValidSubmitAsync()
   {
     await Context.Localities.AddAsync(Model);
     await Context.SaveChangesAsync();
+
+    Context.ChangeTracker.Clear();
     Navigation.NavigateTo("localities");
   }
 }

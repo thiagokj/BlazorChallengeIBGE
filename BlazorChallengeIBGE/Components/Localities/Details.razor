@@ -1,5 +1,6 @@
 ﻿@page "/localities/{id:guid}"
 @inject ApplicationDbContext Context
+@attribute [Authorize]
 @rendermode InteractiveServer
 
 @if (Model is null)
@@ -11,8 +12,8 @@
 else
 {
   <h1>Detalhes | @Model.City</h1>
-  <EditForm Model="@Model" FormName="localities-details">
 
+  <EditForm Model="@Model" FormName="localities-details">
     <div class="mb-3">
       <label class="form-label">Estado</label>
       <InputText @bind-Value="Model.State" class="form-control" readonly />
@@ -42,8 +43,8 @@ else
   protected override async Task OnInitializedAsync()
   {
     Model = await Context
-        .Localities
-        .AsNoTracking()
-        .FirstOrDefaultAsync(x => x.Id == Id);
+    .Localities
+    .AsNoTracking()
+    .FirstOrDefaultAsync(x => x.Id == Id);
   }
 }
