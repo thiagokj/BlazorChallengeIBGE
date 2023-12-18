@@ -7,6 +7,9 @@
 Dockerfile
 Dockerfile.iis
 
+#Powershell
+*.ps1
+
 # User-specific files
 *.rsuser
 *.suo

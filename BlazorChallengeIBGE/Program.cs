@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using BlazorChallengeIBGE.Client.Pages;
 using BlazorChallengeIBGE.Components;
 using BlazorChallengeIBGE.Components.Account;
+using BlazorChallengeIBGE.Client.Pages;
 using BlazorChallengeIBGE.Data;
+using Microsoft.AspNetCore.Authorization;
+using BlazorChallengeIBGE.Util;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +39,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-
+// Permite redirecionar para pagina de acesso restrito devido a um bug no blazor .NET 8
+// https://github.com/dotnet/aspnetcore/issues/52063
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, BlazorAuthorizationMiddlewareResultHandler>();
 
 var app = builder.Build();
 
