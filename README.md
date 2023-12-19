@@ -906,4 +906,4 @@ Para contornar o erro de falha de comunicação com o SQLite, foi feita alteraç
 [ThiagoCajaiba]: https://github.com/thiagokj/
 [PlanilhaIBGE]: https://github.com/andrebaltieri/ibge/blob/main/SQL%20INSERTS%20-%20API%20de%20localidades%20IBGE.xlsx
 [Quickgrid]: https://aspnet.github.io/quickgridsamples/
-[MixedContentError]: BlazorChallengeIBGE/blob/main/BlazorChallengeIBGE/wwwroot/img/mixed-content-error.png
+[MixedContentError]: BlazorChallengeIBGE/wwwroot/img/mixed-content-error.png
