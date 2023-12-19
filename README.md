@@ -9,6 +9,8 @@ Esse projeto faz parte do desafio proposto no Discord do balta.io. Data final: 2
 [Gabriel Tavares][GabrielTavares] e
 [Thiago Cajaíba][ThiagoCajaiba].
 
+Confira a versão demo online [aqui][RenderCloud].
+
 ## Definições
 
 Nosso foco é a entrega de um projeto nível **Júnior/Pleno**, bem estruturado e funcional.
@@ -907,3 +909,4 @@ Para contornar o erro de falha de comunicação com o SQLite, foi feita alteraç
 [PlanilhaIBGE]: https://github.com/andrebaltieri/ibge/blob/main/SQL%20INSERTS%20-%20API%20de%20localidades%20IBGE.xlsx
 [Quickgrid]: https://aspnet.github.io/quickgridsamples/
 [MixedContentError]: BlazorChallengeIBGE/wwwroot/img/mixed-content-error.png
+[RenderCloud]: https://g26-blazor-ibge.onrender.com/
