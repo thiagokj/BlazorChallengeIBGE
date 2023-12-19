@@ -88,6 +88,17 @@ span {
     text-transform: capitalize; /* Mudando para capitalizar para melhor leitura em telas menores */
   }
 
+  /* Limita a tamanho das colunas */
+  ::deep .quickgrid[theme="default"] tbody tr td:nth-child(1) {
+    width: 5px;
+  }
+  ::deep .quickgrid[theme="default"] tbody tr td:nth-child(2) {
+    width: 15px;
+  }
+  ::deep .quickgrid[theme="default"] tbody tr td:nth-child(3) {
+    width: 5px;
+  }
+
   .page-size-chooser {
     flex-direction: column;
   }
