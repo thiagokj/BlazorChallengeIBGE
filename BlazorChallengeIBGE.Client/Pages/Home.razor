@@ -1,4 +1,6 @@
 ﻿@page "/"
+@inject IJSRuntime JS
+@rendermode InteractiveAuto
 
 <PageTitle>Home</PageTitle>
 
@@ -22,11 +24,32 @@
     <p>Fique a vontade para testar a demo com as credenciais abaixo:</p>
 
     <div class="demo-login">
-        <p><strong>Usuário:</strong> g26@balta.io</p>
-        <p><strong>Senha:</strong> s,{4zQ6150nuC-]31f|:</p>
+        <p>
+            <button type="submit" @onclick="@(() => CopyText(@user))" class="btn">
+                <span>📋</span>
+            </button>
+            <strong>Usuário:</strong>
+            <span>@user</span>
+        </p>
+
+        <p>
+            <button type="submit" @onclick="@(() => CopyText(@pass))" class="btn">
+                <span>📋</span>
+            </button>
+            <strong>Senha:</strong>
+            <span>@pass</span>
+        </p>
     </div>
 
     <p>Todas as informações e estrutura do projeto podem ser consultadas no
         <a href="https://github.com/thiagokj/BlazorChallengeIBGE" target="_blank">Github.</a>
     </p>
 </div>
+
+@code {
+    private string user = "g26@balta.io";
+    private string pass = "s,{4zQ6150nuC-]31f|:";
+
+    private async Task CopyText(string text) =>
+    await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+}
