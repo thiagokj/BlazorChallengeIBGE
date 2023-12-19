@@ -115,6 +115,8 @@ else
     Localities = await Context.Localities.AsNoTracking().ToListAsync();
     isLoading = false;
     pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
+    pagination.ItemsPerPage = 10;
+    await GoToPageAsync(0);
   }
 
   private async Task OnInputIbgeCodeAsync(ChangeEventArgs e)
