@@ -2,7 +2,7 @@
 
 Olá Dev! 😎
 
-Esse projeto faz parte do desafio proposto no [Discord][DiscordBalta] do balta.io. Data final: 20/12/23.
+Esse projeto faz parte do desafio proposto no Discord do balta.io. Data final: 20/12/23.
 
 **Dev Team - Grupo 26:**
 [Cláudio Gabriel][ClaudioGabriel],
@@ -904,7 +904,6 @@ Para contornar o erro de falha de comunicação com o SQLite, foi feita alteraç
 [ClaudioGabriel]: https://github.com/Claudio-0x4347
 [GabrielTavares]: https://github.com/gabrielctavares
 [ThiagoCajaiba]: https://github.com/thiagokj/
-[DiscordBalta]: https://discord.gg/nnbPDR9d
 [PlanilhaIBGE]: https://github.com/andrebaltieri/ibge/blob/main/SQL%20INSERTS%20-%20API%20de%20localidades%20IBGE.xlsx
 [Quickgrid]: https://aspnet.github.io/quickgridsamples/
-[MixedContentError]: BlazorChallengeIBGE\wwwroot\img\mixed-content-error.png
+[MixedContentError]: BlazorChallengeIBGE/blob/main/BlazorChallengeIBGE/wwwroot/img/mixed-content-error.png
