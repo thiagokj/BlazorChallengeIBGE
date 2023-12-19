@@ -845,38 +845,57 @@ else
 
 Ao executar o App em produção, sempre aparece uma situação ou outra, então foram feitas algumas modificações.
 
-### Erro em conteúdo misto http/https
+### Erro em conteúdo misto http / https
 
-1. Criação do Util -> BlazorAuthorizationMiddlewareResultHandler.
-   Esse Handler permite personalizar o conteúdo dentro do Routes.razor, desabilitando o RedirectToLogin.
+Erro ao tentar acessar uma pagina sem autorização. Esse comportamento é uma segurança dos navegadores.
 
-   ```csharp
-   using Microsoft.AspNetCore.Authorization;
-   using Microsoft.AspNetCore.Authorization.Policy;
+![MixedContentError][MixedContentError]
 
-   namespace BlazorChallengeIBGE.Util;
-   public class BlazorAuthorizationMiddlewareResultHandler : IAuthorizationMiddlewareResultHandler
-   {
-       public Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy, PolicyAuthorizationResult authorizeResult)
-       {
-           return next(context);
-       }
-   }
+Criação do Util -> BlazorAuthorizationMiddlewareResultHandler.
+Esse Handler permite personalizar o conteúdo dentro do Routes.razor, desabilitando o RedirectToLogin.
 
-   // Routes.razor
-   <Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
-    <Found Context="routeData">
-        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
-            <NotAuthorized>
-                //@* <RedirectToLogin /> *@
-                <RestrictedAccess /> // Componente orientando o usuário a se logar.
-            </NotAuthorized>
-        </AuthorizeRouteView>
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-   </Router>
+```csharp
+// Maiores informações sobre o bug aqui https://github.com/dotnet/aspnetcore/issues/52063
 
-   ```
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
+
+namespace BlazorChallengeIBGE.Util;
+public class BlazorAuthorizationMiddlewareResultHandler : IAuthorizationMiddlewareResultHandler
+{
+    public Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy, PolicyAuthorizationResult authorizeResult)
+    {
+        return next(context);
+    }
+}
+
+// Routes.razor
+<Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
+ <Found Context="routeData">
+     <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+         <NotAuthorized>
+             //@* <RedirectToLogin /> *@
+             <RestrictedAccess /> // Componente orientando o usuário a se logar.
+         </NotAuthorized>
+     </AuthorizeRouteView>
+     <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+ </Found>
+</Router>
+```
+
+### String de conexão afetada em container
+
+Hospedando o app em um container para produção, temos a questão dos caminhos de pastas.
+Os caminhos são resolvidos de formas diferentes no Windows e Linux.
+
+Para contornar o erro de falha de comunicação com o SQLite, foi feita alteração para uso da barra invertida:
+
+```csharp
+//appsettings.json
+  "ConnectionStrings": {
+    "DefaultConnection": "DataSource=Data/app.db;Cache=Shared"
+  },
+```
 
 ### É isso aí, fique à vontade para usar como base. Bons estudos e bons códigos! 👍
 
@@ -888,3 +907,4 @@ Ao executar o App em produção, sempre aparece uma situação ou outra, então 
 [DiscordBalta]: https://discord.gg/nnbPDR9d
 [PlanilhaIBGE]: https://github.com/andrebaltieri/ibge/blob/main/SQL%20INSERTS%20-%20API%20de%20localidades%20IBGE.xlsx
 [Quickgrid]: https://aspnet.github.io/quickgridsamples/
+[MixedContentError]: BlazorChallengeIBGE\wwwroot\img\mixed-content-error.png
