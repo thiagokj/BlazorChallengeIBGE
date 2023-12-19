@@ -2,7 +2,7 @@
 @inject IJSRuntime JS
 @rendermode InteractiveAuto
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Blazor | Desafio</PageTitle>
 
 <h1>Desafio Blazor</h1>
 
@@ -48,8 +48,8 @@
 
 @code {
     private string user = "g26@balta.io";
+
     private string pass = "s,{4zQ6150nuC-]31f|:";
 
-    private async Task CopyText(string text) =>
-    await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+    private async Task CopyText(string text) => await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
 }

@@ -11,7 +11,7 @@ Esse projeto faz parte do desafio proposto no [Discord][DiscordBalta] do balta.i
 
 ## Definições
 
-Nosso foco é a entrega de um projeto nível **Júnior**, bem estruturado e funcional.
+Nosso foco é a entrega de um projeto nível **Júnior/Pleno**, bem estruturado e funcional.
 
 Codificação realizada em inglês, com comentários em português. Definida linguagem Ubiquá para termos específicos.
 
@@ -234,7 +234,7 @@ Página para criar uma nova localidade.
   <button type="submit" class="btn btn-primary">
     Criar
   </button>
-  <a href="/categories">Cancelar</a>
+  <a href="/localities">Cancelar</a>
 </EditForm>
 
 @code {
@@ -247,6 +247,7 @@ Página para criar uma nova localidade.
     await Context.Localities.AddAsync(Model);
     await Context.SaveChangesAsync();
 
+    Context.ChangeTracker.Clear();
     // Após salvar os dados, redireciona a pagina para rota abaixo
     Navigation.NavigateTo("localities");
   }
@@ -653,27 +654,32 @@ Realize as alterações na pagina Components -> Localities -> Index.razor
 
 ```csharp
 @page "/localities"
-@using Microsoft.AspNetCore.Components.QuickGrid // Importando o Namespace Quickgrid
-@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.QuickGrid
 @inject ApplicationDbContext Context
 @inject NavigationManager Navigation
+@rendermode InteractiveServer
+@attribute [StreamRendering(true)] // Processado em partes, trazendo melhor UX
+@attribute [Authorize] // Adicione esse atributo para restringir o acesso via Identity
 
-<h1>Cidades</h1>
+<h1>Localidades</h1>
 
-@if (!Localities.Any())
+@if (isLoading)
 {
   <p class="text-center">
-    <em>Carregando as cidades...</em>
+    <em>Carregando...</em>
   </p>
 }
+// Quando os dados estiverem disponíveis, exibe em forma de tabela os dados da localidade
 else
 {
-  // Elementos antes do grid, permitindo criar uma nova localidade e selecionar a quantidade de itens por página
   <div class="items-per-page">
-    <a href="/localities/create" class="btn btn-primary">Nova Cidade</a>
+    <div>
+      <a href="/localities/create" class="btn btn-primary">Novo</a>
+      <button class="btn btn-secondary" @onclick="ClearFilterAsync">Limpar</button>
+    </div>
 
     <div class="page-size-chooser">
-      <span>Itens por página:</span>
+      <span>Itens:</span>
       <select class="form-select custom-select-sm" @bind="@pagination.ItemsPerPage">
         <option>1</option>
         <option>10</option>
@@ -681,156 +687,198 @@ else
     </div>
   </div>
 
+  @if (!Localities.Any())
+  {
+    <p class="text-center">
+      <em>@noItemsMessage</em>
+    <div><button class="btn btn-link" @onclick="ClearFilterAsync">Voltar</button></div>
+    </p>
+  }
+  else
+  {
+    <div class="grid">
+      <QuickGrid Items="@Localities.AsQueryable()" Pagination="@pagination" class="table table-grid">
 
-  <div class="grid">
-    // Componente Quickgrid, atribuindo a lista de Localidades como tipo Queryable
-    // Também é habilitada a paginação com a Tag Pagination
-    <QuickGrid Items="@Localities.AsQueryable()" Pagination="@pagination" class="table table-grid">
+        // Coluna com link para ver os detalhes do item
+        <TemplateColumn Title="#" SortBy="@SortByIbgeCode">
+          <a class="grid-link" @onclick="@(() => Details(context))">🔗</a>
+        </TemplateColumn>
 
-      // Primeira coluna do grid. É criado um link para pagina detalhes
-      <TemplateColumn Title="#" SortBy="@SortByIbgeCode">
-        <a class="grid-link" @onclick="@(() => Details(context))">
-          🔗
-        </a>
-      </TemplateColumn>
+        // Coluna Código IBGE com opções de filtro
+        <PropertyColumn Property="@(item => item.IbgeCode)" Title="IBGE" Sortable="true" Align="Align.Left">
+          <ColumnOptions>
+            <div class="search-box">
+              <input type="search" @oninput="OnInputIbgeCodeAsync" placeholder="Código Ibge..." />
+            </div>
+          </ColumnOptions>
+        </PropertyColumn>
 
+        // Coluna Estado com opções de filtro
+        <PropertyColumn Property="@(item => item.State)" Title="Estado" Sortable="true" Align="Align.Left">
+          <ColumnOptions>
+            <div class="search-box">
+              <input type="search" @oninput="OnInputStateAsync" placeholder="Sigla UF..." />
+            </div>
+          </ColumnOptions>
+        </PropertyColumn>
 
-      // Coluna seguinte, exibindo o código do Ibge.
-      // Ao clicar no ícone ao lado do nome da coluna, é possível filtrar.
-      <PropertyColumn Property="@(item => item.IbgeCode)" Title="IBGE" Sortable="true" Align="Align.Left">
-        <ColumnOptions>
-          <div class="search-box">
-            <input type="search" @oninput="OnInputIbgeCodeAsync" placeholder="Código Ibge..." />
-          </div>
-        </ColumnOptions>
-      </PropertyColumn>
+        // Coluna Cidade com opções de filtro
+        <PropertyColumn Property="@(item => item.City)" Title="Cidade" Sortable="true" Align="Align.Left">
+          <ColumnOptions>
+            <div class="search-box">
+              <input type="search" @oninput="OnInputCityAsync" placeholder="Cidade..." />
+            </div>
+          </ColumnOptions>
+        </PropertyColumn>
 
-      // Coluna com a UF. Mesmas funcionalidades da coluna anterior
-      <PropertyColumn Property="@(item => item.State)" Title="Estado" Sortable="true" Align="Align.Left">
-        <ColumnOptions>
-          <div class="search-box">
-            <input type="search" @oninput="OnInputStateAsync" placeholder="Sigla UF..." />
-          </div>
-        </ColumnOptions>
-      </PropertyColumn>
+        // Botões de ações para excluir e apagar
+        <TemplateColumn Title="# Ações">
+          <button class="btn btn-primary button-spacing" @onclick="@(() => Edit(context))">Editar</button>
+          <button class="btn btn-danger button-spacing" @onclick="@(() => Delete(context))">Excluir</button>
+        </TemplateColumn>
+      </QuickGrid>
+    </div>
 
-      // Coluna com a Cidade. Mesmas funcionalidades da coluna anterior
-      <PropertyColumn Property="@(item => item.City)" Title="Cidade" Sortable="true" Align="Align.Left">
-        <ColumnOptions>
-          <div class="search-box">
-            <input type="search" @oninput="OnInputCityAsync" placeholder="Cidade..." />
-          </div>
-        </ColumnOptions>
-      </PropertyColumn>
-
-      // Ultima coluna, exibindo botões de edição e exclusão.
-      <TemplateColumn Title="Ações">
-        <button class="btn btn-primary button-spacing" @onclick="@(() => Edit(context))">
-          Editar
-        </button>
-
-        <button class="btn btn-danger button-spacing" @onclick="@(() => Delete(context))">
-          Excluir
-        </button>
-      </TemplateColumn>
-    </QuickGrid>
-  </div>
-
-  // Abaixo do grid, fica a paginação, exibindo um botão para cada página
-  <div class="page-buttons">
-    Página:
-    @if (pagination.TotalItemCount.HasValue)
-    {
-      for (var pageIndex = 0; pageIndex <= pagination.LastPageIndex; pageIndex++)
+    // Geração de botões para paginação
+    <div class="page-buttons">
+      Página:
+      @if (pagination.TotalItemCount.HasValue)
       {
-        var capturedIndex = pageIndex;
-        <button @onclick="@(() => GoToPageAsync(capturedIndex))"
-          class="@PageButtonClass(capturedIndex) page-button"
-          aria-current="@AriaCurrentValue(capturedIndex)"
-          aria-label="Go to page @(pageIndex + 1)">
-          @(pageIndex + 1)
-        </button>
+        for (var pageIndex = 0; pageIndex <= pagination.LastPageIndex; pageIndex++)
+        {
+          var capturedIndex = pageIndex;
+          <button @onclick="@(() => GoToPageAsync(capturedIndex))" class="@PageButtonClass(capturedIndex) page-button"
+            aria-current="@AriaCurrentValue(capturedIndex)" aria-label="Go to page @(pageIndex + 1)">
+            @(pageIndex + 1)
+          </button>
+        }
       }
-    }
-  </div>
+    </div>
+  }
 }
 
 @code {
-  // Lista para retornar todas as localidades
+  // Lista de localidades
   public IEnumerable<Locality> Localities { get; set; } = Enumerable.Empty<Locality>();
 
-  // Componente para ordenar uma coluna do tipo TemplateColumn
+  // Componente para ordenar a coluna de links, que é do tipo TemplateColumn
   GridSort<Locality> SortByIbgeCode = GridSort<Locality>
   .ByAscending(l => l.IbgeCode)
   .ThenAscending(l => l.IbgeCode);
 
-  // Métodos com ações sobre cada localidade
-  public void Details(Locality l) => Navigation.NavigateTo($"/localities/{l.Id}");
-
-  public void Edit(Locality l) => Navigation.NavigateTo($"/localities/edit/{l.Id}");
-
-  public void Delete(Locality l) => Navigation.NavigateTo($"/localities/delete/{l.Id}");
-
-  // Cria um novo objeto para paginação, informado o valor padrão de cada página
+  // Inicialização de filtros e paginação
+  private bool isLoading = true;
+  private string noItemsMessage = "Nenhum item encontrado.";
+  private string previousFilter = string.Empty;
+  private string ibgeCodeFilter = string.Empty;
+  private string stateFilter = string.Empty;
+  private string cityFilter = string.Empty;
   PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
 
-  // Métodos para navegar usando a paginação
-  private async Task GoToPageAsync(int pageIndex)
-  => await pagination.SetCurrentPageIndexAsync(pageIndex);
+  protected override async Task OnInitializedAsync() => await LoadDataAsync();
 
-  private string? PageButtonClass(int pageIndex)
-  => pagination.CurrentPageIndex == pageIndex ? "current" : null;
-
-  private string? AriaCurrentValue(int pageIndex)
-  => pagination.CurrentPageIndex == pageIndex ? "page" : null;
-
-  // Ao carregar a pagina, inicializa a lista de localidades e retorna a quantidade de itens para paginação
-  protected override async Task OnInitializedAsync()
+  private async Task LoadDataAsync()
   {
-    Localities = await Context
-    .Localities
-    .AsNoTracking()
-    .ToListAsync();
-
+    isLoading = true;
+    Localities = await Context.Localities.AsNoTracking().ToListAsync();
+    isLoading = false;
     pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
+    pagination.ItemsPerPage = 10;
+    await GoToPageAsync(0);
   }
 
-  // Métodos para filtrar cada coluna da tabela Localidade
-  public string ibgeCodeFilter = string.Empty;
+  // Filtros individuais por coluna
   private async Task OnInputIbgeCodeAsync(ChangeEventArgs e)
   {
-    ibgeCodeFilter = e.Value.ToString();
-    Localities = await Context.Localities.Where(l =>
-    l.IbgeCode
-    .ToLower()
-    .Contains(ibgeCodeFilter.ToLower()))
-    .ToListAsync();
+    previousFilter = ibgeCodeFilter;
+    ibgeCodeFilter = e.Value.ToString() ?? string.Empty;
+    await ApplyFilterAsync();
   }
 
-  public string stateFilter = string.Empty;
   private async Task OnInputStateAsync(ChangeEventArgs e)
   {
-    stateFilter = e.Value.ToString();
-    Localities = await Context.Localities.Where(l =>
-    l.State
-    .ToLower()
-    .Contains(stateFilter.ToLower()))
-    .ToListAsync();
+    previousFilter = stateFilter;
+    stateFilter = e.Value.ToString() ?? string.Empty;
+    await ApplyFilterAsync();
   }
 
-  public string cityFilter = string.Empty;
   private async Task OnInputCityAsync(ChangeEventArgs e)
   {
-    cityFilter = e.Value.ToString();
-    Localities = await Context.Localities.Where(l =>
-    l.City
-    .ToLower()
-    .Contains(cityFilter.ToLower()))
+    previousFilter = cityFilter;
+    cityFilter = e.Value.ToString() ?? string.Empty;
+    await ApplyFilterAsync();
+  }
+
+  // Aplica o filtro
+  private async Task ApplyFilterAsync()
+  {
+    Localities = await Context.Localities
+    .Where(l => l.IbgeCode.ToLower().Contains(ibgeCodeFilter.ToLower()) &&
+    l.State.ToLower().Contains(stateFilter.ToLower()) &&
+    l.City.ToLower().Contains(cityFilter.ToLower()))
     .ToListAsync();
   }
 
+  // Método para limpar filtros e paginação
+  private async Task ClearFilterAsync()
+  {
+    previousFilter = string.Empty;
+    ibgeCodeFilter = string.Empty;
+    stateFilter = string.Empty;
+    cityFilter = string.Empty;
+    await LoadDataAsync();
+  }
+
+  // Métodos com ações sobre cada item
+  public void Details(Locality l) => Navigation.NavigateTo($"/localities/{l.Id}");
+  public void Edit(Locality l) => Navigation.NavigateTo($"/localities/edit/{l.Id}");
+  public void Delete(Locality l) => Navigation.NavigateTo($"/localities/delete/{l.Id}");
+
+  // Métodos para paginação
+  private async Task GoToPageAsync(int pageIndex) => await pagination.SetCurrentPageIndexAsync(pageIndex);
+  private string? PageButtonClass(int pageIndex) => pagination.CurrentPageIndex == pageIndex ? "current" : null;
+  private string? AriaCurrentValue(int pageIndex) => pagination.CurrentPageIndex == pageIndex ? "page" : null;
 }
 ```
+
+## 06 - Opcionais
+
+Ao executar o App em produção, sempre aparece uma situação ou outra, então foram feitas algumas modificações.
+
+### Erro em conteúdo misto http/https
+
+1. Criação do Util -> BlazorAuthorizationMiddlewareResultHandler.
+   Esse Handler permite personalizar o conteúdo dentro do Routes.razor, desabilitando o RedirectToLogin.
+
+   ```csharp
+   using Microsoft.AspNetCore.Authorization;
+   using Microsoft.AspNetCore.Authorization.Policy;
+
+   namespace BlazorChallengeIBGE.Util;
+   public class BlazorAuthorizationMiddlewareResultHandler : IAuthorizationMiddlewareResultHandler
+   {
+       public Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy, PolicyAuthorizationResult authorizeResult)
+       {
+           return next(context);
+       }
+   }
+
+   // Routes.razor
+   <Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                //@* <RedirectToLogin /> *@
+                <RestrictedAccess /> // Componente orientando o usuário a se logar.
+            </NotAuthorized>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+   </Router>
+
+   ```
+
+### É isso aí, fique à vontade para usar como base. Bons estudos e bons códigos! 👍
 
 <!-- Links -->
 

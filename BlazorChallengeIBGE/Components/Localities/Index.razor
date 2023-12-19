@@ -3,6 +3,7 @@
 @inject ApplicationDbContext Context
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
+@attribute [StreamRendering(true)]
 @attribute [Authorize]
 
 <h1>Localidades</h1>
@@ -41,7 +42,7 @@ else
   {
     <div class="grid">
       <QuickGrid Items="@Localities.AsQueryable()" Pagination="@pagination" class="table table-grid">
-        <TemplateColumn Title="#">
+        <TemplateColumn Title="#" SortBy="@SortByIbgeCode">
           <a class="grid-link" @onclick="@(() => Details(context))">🔗</a>
         </TemplateColumn>
 
@@ -95,6 +96,7 @@ else
 
 @code {
   public IEnumerable<Locality> Localities { get; set; } = Enumerable.Empty<Locality>();
+
   GridSort<Locality> SortByIbgeCode = GridSort<Locality>
   .ByAscending(l => l.IbgeCode)
   .ThenAscending(l => l.IbgeCode);
