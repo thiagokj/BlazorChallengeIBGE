@@ -1,25 +1,25 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BlazorChallengeIBGE.Models
+namespace BlazorChallengeIBGE.Models;
+
+public class Locality
 {
-  public class Locality
-  {
-    [Key]
-    public Guid Id { get; set; } = Guid.NewGuid();
+  [Key]
+  public Guid Id { get; set; } = Guid.NewGuid();
 
-    [Required(ErrorMessage = "Informe o código IBGE")]
-    [StringLength(7, MinimumLength = 7, ErrorMessage = "O código deve conter 7 digitos")]
-    [RegularExpression(@"^\d+$", ErrorMessage = "Apenas digitos são permitidos")]
-    public string IbgeCode { get; set; } = null!;
+  [Required(ErrorMessage = "Informe o código IBGE")]
+  [StringLength(7, MinimumLength = 7, ErrorMessage = "O código deve conter 7 digitos")]
+  [RegularExpression(@"^\d+$", ErrorMessage = "Apenas digitos são permitidos")]
+  public string IbgeCode { get; set; } = null!;
 
-    [Required(ErrorMessage = "Informe a sigla do Estado")]
-    [StringLength(2, MinimumLength = 2, ErrorMessage = "A sigla deve conter 2 caracteres")]
-    [RegularExpression(@"^[a-zA-Z]*$", ErrorMessage = "Apenas letras são permitidas")]
-    public string State { get; set; } = null!;
+  [Required(ErrorMessage = "Informe a sigla do Estado")]
+  [StringLength(2, MinimumLength = 2, ErrorMessage = "A sigla deve conter 2 caracteres")]
+  [RegularExpression(@"^[a-zA-Z]*$", ErrorMessage = "Apenas letras são permitidas")]
+  public string State { get; set; } = null!;
 
-    [Required(ErrorMessage = "Informe a Cidade")]
-    [MinLength(3, ErrorMessage = "A cidade deve ter pelo menos 3 caracteres")]
-    [MaxLength(100, ErrorMessage = "A cidade deve ter no máximo 100 caracteres")]
-    [RegularExpression(@"^[a-zA-ZÀ-ÿ ]*$", ErrorMessage = "Apenas letras e acentuação são permitidos")]
-  }
+  [Required(ErrorMessage = "Informe a Cidade")]
+  [MinLength(3, ErrorMessage = "A cidade deve ter pelo menos 3 caracteres")]
+  [MaxLength(100, ErrorMessage = "A cidade deve ter no máximo 100 caracteres")]
+  [RegularExpression(@"^[a-zA-ZÀ-ÿ ]*$", ErrorMessage = "Apenas letras e acentuação são permitidos")]
+  public string City { get; set; } = null!;
 }
