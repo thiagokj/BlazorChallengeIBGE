@@ -124,21 +124,21 @@ else
   private async Task OnInputIbgeCodeAsync(ChangeEventArgs e)
   {
     previousFilter = ibgeCodeFilter;
-    ibgeCodeFilter = e.Value.ToString() ?? string.Empty;
+    ibgeCodeFilter = e.Value?.ToString() ?? string.Empty;
     await ApplyFilterAsync();
   }
 
   private async Task OnInputStateAsync(ChangeEventArgs e)
   {
     previousFilter = stateFilter;
-    stateFilter = e.Value.ToString() ?? string.Empty;
+    stateFilter = e.Value?.ToString() ?? string.Empty;
     await ApplyFilterAsync();
   }
 
   private async Task OnInputCityAsync(ChangeEventArgs e)
   {
     previousFilter = cityFilter;
-    cityFilter = e.Value.ToString() ?? string.Empty;
+    cityFilter = e.Value?.ToString() ?? string.Empty;
     await ApplyFilterAsync();
   }
 
